@@ -3,7 +3,7 @@ import pandas as pd
 import io
 
 def process_hr_report(file):
-    # Load the provided Excel file
+    # Load the provided Excel file, skipping the first three rows
     df = pd.read_excel(file, skiprows=3)
 
     # Drop any summary rows if present
@@ -11,17 +11,17 @@ def process_hr_report(file):
 
     # Initialize the output dataframe
     days = list(range(1, 32))
-    output_columns = ['Фамилия', 'Имя'] + [str(day) for day in days]
+    output_columns = ['Фамилия', 'Имя', 'Должность'] + [str(day) for day in days]
     output_df = pd.DataFrame(columns=output_columns)
 
     # Group by employee
-    grouped = df.groupby(['Фамилия', 'Имя'])
+    grouped = df.groupby(['Фамилия', 'Имя', 'Должность'])
 
     rows = []  # List to collect rows
 
-    for (last_name, first_name), group in grouped:
+    for (last_name, first_name, position), group in grouped:
         # Create a row for the current employee
-        row = {'Фамилия': last_name, 'Имя': first_name}
+        row = {'Фамилия': last_name, 'Имя': first_name, 'Должность': position}
 
         for _, entry in group.iterrows():
             day = str(pd.to_datetime(entry['Дата']).day)
@@ -64,4 +64,3 @@ if uploaded_file is not None:
     st.download_button(label='📥 Download Processed Report',
                        data=df_xlsx,
                        file_name='processed_hr_report.xlsx')
-
