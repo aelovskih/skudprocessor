@@ -4,7 +4,7 @@ import io
 
 def process_hr_report(file):
     # Load the provided Excel file
-    df = pd.read_excel(file)
+    df = pd.read_excel(file, skiprows=3)
 
     # Drop any summary rows if present
     df = df[~df['Фамилия'].str.contains('Итого:', na=False)]
