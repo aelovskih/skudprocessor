@@ -9,9 +9,12 @@ def process_hr_report(file):
     # Drop any summary rows if present
     df = df[~df['Фамилия'].str.contains('Итого:', na=False)]
 
+    # Extract unique dates from the 'Дата' column and format them as needed
+    unique_dates = pd.to_datetime(df['Дата']).dt.strftime('%d.%m').unique()
+    unique_dates.sort()
+
     # Initialize the output dataframe
-    days = list(range(1, 32))
-    output_columns = ['Фамилия', 'Имя', 'Должность'] + [str(day) for day in days]
+    output_columns = ['Фамилия', 'Имя', 'Должность'] + list(unique_dates)
     output_df = pd.DataFrame(columns=output_columns)
 
     # Group by employee
@@ -24,7 +27,7 @@ def process_hr_report(file):
         row = {'Фамилия': last_name, 'Имя': first_name, 'Должность': position}
 
         for _, entry in group.iterrows():
-            day = str(pd.to_datetime(entry['Дата']).day)
+            date = pd.to_datetime(entry['Дата']).strftime('%d.%m')
             if pd.notna(entry['Вход']):
                 time_in = pd.to_datetime(entry['Вход']).strftime('%H:%M')
             else:
@@ -33,7 +36,7 @@ def process_hr_report(file):
                 time_out = pd.to_datetime(entry['Выход']).strftime('%H:%M')
             else:
                 time_out = '!'
-            row[day] = f"{time_in}-{time_out}" if time_out != '!' else f"{time_in}-!"
+            row[date] = f"{time_in}-{time_out}" if time_out != '!' else f"{time_in}-!"
 
         rows.append(row)  # Add the row to the list
 
