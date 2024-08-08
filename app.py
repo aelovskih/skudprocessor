@@ -10,11 +10,14 @@ def process_hr_report(file):
     df = df[~df['Фамилия'].str.contains('Итого:', na=False)]
 
     # Extract unique dates from the 'Дата' column and format them as needed
-    unique_dates = pd.to_datetime(df['Дата']).dt.strftime('%d.%m').unique()
+    unique_dates = pd.to_datetime(df['Дата']).dt.date.unique()
     unique_dates.sort()
 
+    # Format dates as 'dd.mm' after sorting
+    formatted_dates = [date.strftime('%d.%m') for date in unique_dates]
+
     # Initialize the output dataframe
-    output_columns = ['Фамилия', 'Имя', 'Должность'] + list(unique_dates)
+    output_columns = ['Фамилия', 'Имя', 'Должность'] + formatted_dates
     output_df = pd.DataFrame(columns=output_columns)
 
     # Group by employee
